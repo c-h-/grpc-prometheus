@@ -120,7 +120,7 @@ defmodule GRPCPrometheus.ServerInterceptor do
 
     case latency do
       :histogram ->
-        diff = System.convert_time_unit(stop - start, :native, :second)
+        diff = System.convert_time_unit(stop - start, :native, :millisecond)
         
         Logger.debug("Request latency: #{diff} #{inspect(labels_with_code)}")
 
@@ -134,7 +134,7 @@ defmodule GRPCPrometheus.ServerInterceptor do
         )
 
       :summary ->
-        diff = System.convert_time_unit(stop - start, :native, :second)
+        diff = System.convert_time_unit(stop - start, :native, :millisecond)
 
         Logger.debug("Request latency: #{diff} #{inspect(labels_with_code)}")
         
