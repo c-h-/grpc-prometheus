@@ -11,8 +11,8 @@ defmodule GRPCPrometheus.ServerInterceptor do
   require Prometheus.Contrib.HTTP
 
   use Prometheus.Config,
-    latency: :summary,
-    histogram_buckets: [0.005, 0.01, 0.025, 0.05, 0.1, 0.25, 0.5, 1, 2.5, 5, 10],
+    latency: :histogram,
+    histogram_buckets: [5, 10, 25, 50, 100, 250, 500, 1000, 2500, 5000, 10000],
     registry: :default
 
   def setup do
@@ -51,8 +51,8 @@ defmodule GRPCPrometheus.ServerInterceptor do
     case latency do
       :histogram ->
         Histogram.declare(
-          name: :grpc_server_handled_latency_seconds,
-          help: "Histogram of response latency of rpcs handled by the server, in seconds.",
+          name: :grpc_server_handled_latency_milliseconds,
+          help: "Histogram of response latency of rpcs handled by the server, in milliseconds.",
           labels: @labels_with_code,
           buckets: histogram_buckets,
           registry: registry
@@ -60,8 +60,8 @@ defmodule GRPCPrometheus.ServerInterceptor do
 
       :summary ->
         Summary.declare(
-          name: :grpc_server_handled_latency_seconds,
-          help: "Summary of response latency of rpcs handled by the server, in seconds.",
+          name: :grpc_server_handled_latency_milliseconds,
+          help: "Summary of response latency of rpcs handled by the server, in milliseconds.",
           labels: @labels_with_code,
           registry: registry
         )
@@ -122,12 +122,12 @@ defmodule GRPCPrometheus.ServerInterceptor do
       :histogram ->
         diff = System.convert_time_unit(stop - start, :native, :millisecond)
         
-        Logger.debug("Request latency: #{diff} #{inspect(labels_with_code)}")
+        Logger.debug("Request latency: #{diff}ms #{inspect(labels_with_code)}")
 
         Histogram.observe(
           [
             registry: registry,
-            name: :grpc_server_handled_latency_seconds,
+            name: :grpc_server_handled_latency_milliseconds,
             labels: labels_with_code
           ],
           diff
@@ -136,12 +136,12 @@ defmodule GRPCPrometheus.ServerInterceptor do
       :summary ->
         diff = System.convert_time_unit(stop - start, :native, :millisecond)
 
-        Logger.debug("Request latency: #{diff} #{inspect(labels_with_code)}")
+        Logger.debug("Request latency: #{diff}ms #{inspect(labels_with_code)}")
         
         Summary.observe(
           [
             registry: registry,
-            name: :grpc_server_handled_latency_seconds,
+            name: :grpc_server_handled_latency_milliseconds,
             labels: labels_with_code
           ],
           diff
