@@ -1,5 +1,7 @@
 defmodule GRPCPrometheus.ServerInterceptor do
   use Prometheus.Metric
+  
+  require Logger
 
   @behaviour GRPC.ServerInterceptor
 
@@ -119,6 +121,8 @@ defmodule GRPCPrometheus.ServerInterceptor do
     case latency do
       :histogram ->
         diff = System.convert_time_unit(stop - start, :native, :second)
+        
+        Logger.debug("Request latency: #{diff} #{inspect(labels_with_code)}")
 
         Histogram.observe(
           [
@@ -132,6 +136,8 @@ defmodule GRPCPrometheus.ServerInterceptor do
       :summary ->
         diff = System.convert_time_unit(stop - start, :native, :second)
 
+        Logger.debug("Request latency: #{diff} #{inspect(labels_with_code)}")
+        
         Summary.observe(
           [
             registry: registry,
